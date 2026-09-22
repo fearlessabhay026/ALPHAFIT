@@ -177,3 +177,38 @@ With `prefers-reduced-motion: reduce`:
   sequence instead, which keeps the typography without the cost of a pin.
 
 Verified at 390, 768, 1024 and 1440px with no horizontal overflow.
+
+---
+
+## Deployment
+
+Deployed on Vercel, connected to this GitHub repo — pushing to the production
+branch triggers a build automatically.
+
+- Project: `alphafit` (team `abhay-s-team5`)
+- Production: https://alphafit-eight.vercel.app
+
+### vercel.json
+
+Vercel defaults everything served out of `public/` to
+`Cache-Control: max-age=0, must-revalidate`, which makes the **preloaded LCP
+font revalidate on every visit**. `vercel.json` overrides that:
+
+| Path | Cache | Why |
+| --- | --- | --- |
+| `/assets/*` | 1 year, immutable | Vite content-hashes these, so it is always safe |
+| `/fonts/*` | 1 year, immutable | Fixed subsets. **If you swap a font file, change its filename too**, or clients will hold the old one |
+| `favicon / og / texture` | 1 day | Unhashed art, so a replacement goes live quickly |
+
+`vercel.json` is validated strictly — it rejects unknown keys, so don't add
+comment fields to it.
+
+### Before going live
+
+1. **Remove the `noindex` tag** in `index.html`. It is there because the page
+   still shows placeholder figures and member stories, and those should not be
+   indexed as factual.
+2. Replace the placeholders listed above, and fill the image slots.
+3. Add the `LocalBusiness` JSON-LD once the real business details exist.
+4. Attach the real domain in the Vercel project, and rename the production
+   branch to something more permanent than the current working branch.
