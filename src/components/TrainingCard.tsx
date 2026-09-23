@@ -81,10 +81,12 @@ export function TrainingCard({
       onBlur={() => setActive(false)}
       data-training-card
       className="group relative block aspect-[3/4] overflow-hidden border border-iron/70 bg-void transition-colors duration-500 hover:border-red focus-visible:border-red active:border-red md:aspect-[3/4.6]"
-      aria-label={`${program.index} ${program.title} ${program.copy}`}
     >
       <div data-card-image className="absolute inset-[-6%] will-change-transform">
-        <ImagePlate slot={program.image} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw" />
+        {/* Decorative inside the link: the card is named by its own text
+            (index, title, copy), exactly what a sighted user reads. The
+            photo's alt would otherwise lead every card's name. */}
+        <ImagePlate slot={{ ...program.image, alt: '' }} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw" />
       </div>
 
       <span
