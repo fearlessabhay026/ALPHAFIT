@@ -207,6 +207,23 @@ branch triggers a build automatically.
 - Project: `alphafit` (team `abhay-s-team5`)
 - Production: https://alphafit-eight.vercel.app
 
+### Prerendering
+
+`npm run build` renders the page twice: the normal client build, then
+`vite build --ssr src/entry-server.tsx`, and `scripts/prerender.mjs` writes
+the server-rendered markup into `dist/index.html`. Crawlers, link previews
+and visitors without JavaScript get the full page; `src/main.tsx` hydrates it.
+The dev server still renders client-side.
+
+Two rules keep hydration clean:
+
+- Read browser state (`matchMedia`, sizes) through `useMediaQuery` /
+  `usePrefersReducedMotion` in `src/lib/motion.ts`, never in a `useState`
+  initialiser or during render.
+- Start states that GSAP animates from belong behind JS: the `[data-anim]`
+  attributes, or the `js:` Tailwind variant (e.g. `js:opacity-0`). A plain
+  `opacity-0` hides the element for anyone without JavaScript.
+
 ### vercel.json
 
 Vercel defaults everything served out of `public/` to
