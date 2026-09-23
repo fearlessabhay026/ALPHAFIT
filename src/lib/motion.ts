@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -51,39 +51,32 @@ export function useGsap(
   return scope;
 }
 
-/** Live `prefers-reduced-motion` state. Motion is opt-out, never assumed. */
-export function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  });
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const onChange = () => setReduced(mq.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
-
-  return reduced;
+/**
+ * Media-query state that is safe to hydrate: the prerendered HTML is built
+ * with `serverValue`, React hydrates against that same value and then
+ * re-renders with the real match before paint, so server and client markup
+ * never disagree (a plain useState(matchMedia) initialiser does).
+ */
+export function useMediaQuery(query: string, serverValue = false) {
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener('change', onChange);
+      return () => mq.removeEventListener('change', onChange);
+    },
+    [query],
+  );
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    () => serverValue,
+  );
 }
 
-/** Generic media-query hook — used to gate desktop-only interactions. */
-export function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia(query).matches;
-  });
-
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const onChange = () => setMatches(mq.matches);
-    setMatches(mq.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, [query]);
-
-  return matches;
+/** Live `prefers-reduced-motion` state. Motion is opt-out, never assumed. */
+export function usePrefersReducedMotion() {
+  // The prerender assumes reduced motion, so the static HTML is the calm version.
+  return useMediaQuery('(prefers-reduced-motion: reduce)', true);
 }
 
 /** True on pointer-precise, wide viewports — where hover effects are worth running. */
