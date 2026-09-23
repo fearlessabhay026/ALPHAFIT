@@ -27,7 +27,7 @@ export function Footer() {
                     event.preventDefault();
                     scrollToId(item.href);
                   }}
-                  className="label-type text-ash transition-colors duration-300 hover:text-bone"
+                  className="label-type -my-[17px] inline-block py-[17px] text-ash transition-colors duration-300 hover:text-bone"
                 >
                   {item.label}
                 </a>
