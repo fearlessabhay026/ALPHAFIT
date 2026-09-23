@@ -97,7 +97,11 @@ export function useIsDesktop() {
  */
 export function useMagnetic<T extends HTMLElement>(strength = 0.28) {
   const ref = useRef<T>(null);
-  const enabled = useIsDesktop() && !usePrefersReducedMotion();
+  // Both hooks run on every render: `a() && b()` would skip b() while a() is
+  // false, and React crashes (error #310) when the hook count changes.
+  const isDesktop = useIsDesktop();
+  const reduced = usePrefersReducedMotion();
+  const enabled = isDesktop && !reduced;
 
   const onMove = useCallback(
     (event: React.MouseEvent<T>) => {
