@@ -1,0 +1,14 @@
+{
+  "name": "alphafit-plate-render",
+  "private": true,
+  "type": "module",
+  "description": "Offline renderer for the 20 KG plate frame sequence. Not part of the site build.",
+  "scripts": {
+    "render": "node render.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0",
+    "sharp": "^0.34.0",
+    "three": "0.180.0"
+  }
+}

@@ -298,3 +298,42 @@
     transform: translateY(400%);
   }
 }
+
+/* Hero athlete: bottom fade on phones, a soft left seam into the type on desktop. */
+.hero-athlete-mask {
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+@media (width >= 64rem) {
+  .hero-athlete-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 16%, #000 40%);
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 16%, #000 40%);
+  }
+}
+
+.manifesto-photo-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 45%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 45%);
+}
+
+/* Facility spotlight: darkens the room except around the active hotspot. The
+   centre is a registered property so it glides between hotspots. */
+@property --fx {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+@property --fy {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+.facility-focus {
+  background:
+    radial-gradient(circle 10rem at var(--fx) var(--fy), rgba(255, 240, 232, 0.12), transparent 100%),
+    radial-gradient(circle 30rem at var(--fx) var(--fy), transparent 0%, transparent 40%, rgba(3, 3, 4, 0.32) 100%);
+  transition:
+    --fx 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    --fy 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.7s ease;
+}

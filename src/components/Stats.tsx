@@ -1,4 +1,5 @@
-import { stats } from '../data/site';
+import { SectionMarker } from './ui/Transitions';
+import { stats, sections } from '../data/site';
 import { gsap, onEnter, reveal, useGsap } from '../lib/motion';
 import { SectionLabel } from './ui/Reveal';
 
@@ -22,8 +23,9 @@ export function Stats() {
       ref={scope as React.Ref<HTMLElement>}
       data-stats
       aria-labelledby="stats-heading"
-      className="relative bg-ink py-24 md:py-32 lg:py-40"
+      className="relative overflow-clip bg-ink pt-28 pb-20 md:pt-32 lg:pt-36 lg:pb-28"
     >
+      <SectionMarker {...sections.stats} />
       <div className="gutter mx-auto max-w-[120rem]">
         <div data-stats-label>
           <SectionLabel>{stats.label}</SectionLabel>

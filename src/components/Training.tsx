@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { trainingPrograms, trainingSection } from '../data/site';
+import { trainingPrograms, trainingSection, sections } from '../data/site';
 import { ease, gsap, onEnter, reveal, useGsap, useIsDesktop, usePrefersReducedMotion } from '../lib/motion';
 import { Button } from './ui/Button';
+import { SectionMarker } from './ui/Transitions';
 import { MaskLine, SectionLabel } from './ui/Reveal';
 import { TrainingCard } from './TrainingCard';
 
@@ -34,8 +35,10 @@ export function Training() {
       const isActive = active === index;
       const isDimmed = active !== null && !isActive;
       gsap.to(card, {
-        scale: isActive ? 1.03 : isDimmed ? 0.965 : 1,
-        opacity: isDimmed ? 0.5 : 1,
+        // Active card grows ~5%; its neighbours give way without leaving the grid.
+        scale: isActive ? 1.055 : isDimmed ? 0.96 : 1,
+        opacity: isDimmed ? 0.55 : 1,
+        zIndex: isActive ? 2 : 1,
         duration: 0.8,
         ease: ease.weight,
       });
@@ -48,8 +51,9 @@ export function Training() {
       ref={scope as React.Ref<HTMLElement>}
       data-training
       aria-labelledby="training-heading"
-      className="relative bg-ink py-24 md:py-32 lg:py-44"
+      className="relative overflow-clip bg-ink pt-28 pb-24 md:pt-32 lg:pt-36 lg:pb-32"
     >
+      <SectionMarker {...sections.training} />
       <div className="gutter mx-auto max-w-[120rem]">
         <div className="grid grid-cols-12 gap-x-6 gap-y-14">
           {/* Left column — the statement */}

@@ -1,7 +1,8 @@
-import { coaching } from '../data/site';
+import { coaching, sections } from '../data/site';
 import { gsap, onEnter, reveal, useGsap, usePrefersReducedMotion } from '../lib/motion';
 import { Button } from './ui/Button';
 import { ImagePlate } from './ui/ImagePlate';
+import { SectionMarker } from './ui/Transitions';
 import { MaskLine, SectionLabel } from './ui/Reveal';
 
 /**
@@ -41,38 +42,45 @@ export function PersonalTraining() {
       ref={scope as React.Ref<HTMLElement>}
       data-coaching
       aria-labelledby="coaching-heading"
-      className="relative overflow-clip bg-ink py-24 md:py-32 lg:py-44"
+      className="relative overflow-clip bg-ink py-20 md:py-28 lg:py-28"
     >
+      <SectionMarker {...sections.coaching} />
       <div className="gutter mx-auto max-w-[120rem]">
         <div className="grid grid-cols-12 gap-x-6 gap-y-12 lg:items-center">
-          {/* Image column */}
-          <div className="col-span-12 lg:col-span-6 xl:col-span-5">
+          {/* Image column — dominant, bleeding off the left edge of the page */}
+          <div className="col-span-12 -mx-5 md:-mx-10 lg:col-span-7 lg:mr-0 min-[90rem]:-ml-14">
             <div
               data-coaching-frame
-              className="relative aspect-[4/5] overflow-hidden border border-iron/60 lg:aspect-[3/4.2]"
+              className="relative aspect-[4/5] overflow-hidden sm:aspect-[4/3] lg:aspect-auto lg:h-[min(92svh,60rem)]"
             >
               <div data-coaching-image className="absolute inset-[-8%] will-change-transform">
                 <ImagePlate
                   slot={coaching.image}
-                  sizes="(max-width: 1024px) 100vw, 45vw"
-                  vignette={0.5}
+                  sizes="(min-width: 1024px) 60vw, 100vw"
+                  className="contrast-[1.05]"
                 />
               </div>
               <span
                 aria-hidden
                 className="absolute inset-0"
                 style={{
-                  background: 'linear-gradient(to top, rgba(3,3,4,0.85) 2%, transparent 55%)',
+                  background:
+                    'linear-gradient(to top, rgba(3,3,4,0.9) 0%, transparent 38%), linear-gradient(to left, rgba(10,10,12,0.85) 0%, transparent 30%)',
                 }}
               />
-              <p className="label-type absolute bottom-6 left-6 text-ash">
-                1-on-1 / On the floor
+              <span
+                aria-hidden
+                className="absolute inset-0 mix-blend-screen"
+                style={{ background: 'radial-gradient(45% 55% at 92% 18%, rgba(225,20,20,0.22), transparent 70%)' }}
+              />
+              <p className="label-type absolute bottom-6 left-5 text-ash md:left-10 min-[90rem]:left-14">
+                Fig. 06 / 1-on-1, on the floor
               </p>
             </div>
           </div>
 
           {/* Argument column */}
-          <div className="col-span-12 lg:col-span-5 lg:col-start-8">
+          <div className="col-span-12 lg:col-span-5 lg:col-start-8 lg:py-10">
             <div data-coaching-label>
               <SectionLabel>{coaching.label}</SectionLabel>
             </div>

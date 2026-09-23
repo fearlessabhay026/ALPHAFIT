@@ -37,7 +37,7 @@ export function TrainingCard({
       ease: ease.weight,
     });
     gsap.to(q('[data-card-body]'), { y: active ? -14 : 0, duration: 0.7, ease: ease.weight });
-    gsap.to(q('[data-card-scrim]'), { opacity: active ? 0.4 : 0.78, duration: 0.7 });
+    gsap.to(q('[data-card-scrim]'), { opacity: active ? 0.82 : 1, duration: 0.7 });
   };
 
   /** Subtle cursor-following lean inside the frame. Desktop only. */
@@ -80,26 +80,33 @@ export function TrainingCard({
       onFocus={() => setActive(true)}
       onBlur={() => setActive(false)}
       data-training-card
-      className="group relative block aspect-[3/4] overflow-hidden border border-iron/70 bg-void transition-colors duration-500 hover:border-red focus-visible:border-red active:border-red md:aspect-[3/4.2]"
-      aria-label={`${program.title} — ${program.copy}`}
+      className="group relative block aspect-[3/4] overflow-hidden border border-iron/70 bg-void transition-colors duration-500 hover:border-red focus-visible:border-red active:border-red md:aspect-[3/4.6]"
+      aria-label={`${program.index} ${program.title} — ${program.copy}`}
     >
       <div data-card-image className="absolute inset-[-6%] will-change-transform">
-        <ImagePlate slot={program.image} sizes="(max-width: 768px) 100vw, 33vw" vignette={0.55} />
+        <ImagePlate slot={program.image} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw" />
       </div>
 
       <span
         data-card-scrim
         aria-hidden
-        className="absolute inset-0 opacity-[0.78]"
+        className="absolute inset-0"
         style={{
+          // Only the lower band darkens, where the text sits. The top ~70% stays photograph.
           background:
-            'linear-gradient(to top, rgba(3,3,4,0.97) 6%, rgba(3,3,4,0.6) 42%, rgba(3,3,4,0.2) 100%)',
+            'linear-gradient(to top, rgba(3,3,4,0.96) 0%, rgba(3,3,4,0.78) 16%, rgba(3,3,4,0.3) 30%, transparent 42%), linear-gradient(to bottom, rgba(3,3,4,0.5) 0%, transparent 14%)',
         }}
       />
 
-      <span className="label-type absolute top-5 left-5 text-bone md:top-6 md:left-6">
-        {program.index}
-      </span>
+      <div className="absolute inset-x-5 top-5 flex items-center justify-between md:inset-x-6 md:top-6">
+        <span className="label-type text-bone">{program.index}</span>
+        <span
+          aria-hidden
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-bone/25 bg-void/30 text-bone backdrop-blur-sm transition-[background-color,border-color,translate] duration-500 ease-out group-hover:translate-x-1 group-hover:border-red group-hover:bg-red group-focus-visible:border-red group-focus-visible:bg-red group-active:border-red group-active:bg-red"
+        >
+          {'\u2192'}
+        </span>
+      </div>
 
       <div data-card-body className="absolute inset-x-5 bottom-5 md:inset-x-6 md:bottom-6">
         <span
@@ -107,21 +114,21 @@ export function TrainingCard({
           aria-hidden
           className="mb-4 block h-px w-full origin-left bg-red transition-transform duration-700 ease-out lg:scale-x-0 lg:group-hover:scale-x-100 lg:group-focus-visible:scale-x-100"
         />
-        <h3 className="display-type text-[clamp(1.5rem,2.6vw,2.15rem)]">{program.title}</h3>
-        <p className="body-type mt-3 max-w-[18rem] text-[0.82rem] text-ash">{program.copy}</p>
-        <p
-          data-card-detail
-          className="body-type mt-3 hidden max-w-[18rem] text-[0.82rem] text-smoke opacity-0 transition-opacity duration-500 ease-out lg:block lg:group-hover:opacity-100 lg:group-focus-visible:opacity-100"
-        >
-          {program.detail}
-        </p>
-
-        <span
-          aria-hidden
-          className="mt-5 flex h-9 w-9 items-center justify-center rounded-full border border-iron text-bone transition-colors duration-400 group-hover:border-red group-hover:bg-red group-focus-visible:border-red group-focus-visible:bg-red"
-        >
-          {'→'}
-        </span>
+        <h3 className="display-type text-[clamp(1.5rem,2.4vw,2.15rem)]">{program.title}</h3>
+        {/* Copy and hover detail share one grid cell and crossfade, so the text
+            block never grows into the photograph. */}
+        <div className="mt-3 grid max-w-[18rem] [&>*]:col-start-1 [&>*]:row-start-1">
+          <p className="body-type text-[0.82rem] text-ash transition-opacity duration-500 ease-out lg:group-hover:opacity-0 lg:group-focus-visible:opacity-0">
+            {program.copy}
+          </p>
+          <p
+            data-card-detail
+            aria-hidden
+            className="body-type hidden text-[0.82rem] text-bone/85 opacity-0 transition-opacity duration-500 ease-out lg:block lg:group-hover:opacity-100 lg:group-focus-visible:opacity-100"
+          >
+            {program.detail}
+          </p>
+        </div>
       </div>
     </a>
   );

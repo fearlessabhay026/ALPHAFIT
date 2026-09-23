@@ -10,19 +10,31 @@
  * years operating, testimonials, address, phone) is a placeholder marked with
  * `placeholder: true` and written with obvious filler (XX+, "Member name").
  * Never replace these with invented numbers — replace them with real data or
- * leave them out. Components render `placeholder` entries with a dimmed
- * treatment so an unfinished field is visible during review.
+ * leave them out. Components render `placeholder` entries with a visible
+ * marker so an unfinished field is obvious during review.
+ *
+ * PHOTOGRAPHY
+ * -----------
+ * `photo` keys point at assets-src/photos (built by `npm run images`).
+ * Every current photograph is `source: 'generated'` — an art-directed stand-in,
+ * not ALPHAFIT's actual gym or members. Replace them with real photography,
+ * starting with the facility: visitors will read "The Room" as the real room.
  */
+import type { PhotoKey } from './images.generated';
 
 export type ImageSlot = {
-  /** Set to a real ALPHAFIT photograph to replace the generated plate. */
-  src?: string;
-  /** Required whenever `src` is set. Describes the photograph, not the layout. */
+  /** Key of a built photograph. When absent, the generated plate renders instead. */
+  photo?: PhotoKey;
+  /** Describes the photograph, not the layout. Omit only for decorative backdrops. */
   alt: string;
-  /** Selects the generated stand-in composition. See components/ui/ImagePlate.tsx */
+  /** Stand-in composition used when there is no photograph. See components/ui/ImagePlate.tsx */
   plate: PlateKind;
-  /** Art-direction note for whoever shoots / sources the real image. */
+  /** CSS object-position: the focal point to keep in frame when the image is cropped. */
+  focus?: string;
+  /** Art-direction note for whoever shoots the real photograph. */
   brief: string;
+  /** Provenance. 'generated' marks a stand-in to be replaced with real ALPHAFIT photography. */
+  source?: 'generated' | 'alphafit';
 };
 
 export type PlateKind =
@@ -49,6 +61,18 @@ export const navigation = [
   { label: 'About', href: '#about' },
 ] as const;
 
+/** Section index used by the transition markers — the page's running order. */
+export const sections = {
+  manifesto: { index: '02', name: 'Manifesto' },
+  training: { index: '03', name: 'Training' },
+  facility: { index: '04', name: 'Facility' },
+  weight: { index: '05', name: 'The work' },
+  coaching: { index: '06', name: 'Coaching' },
+  results: { index: '07', name: 'Results' },
+  stats: { index: '08', name: 'Numbers' },
+  join: { index: '09', name: 'Join' },
+} as const;
+
 export const hero = {
   lines: ['Train', 'Like a', 'King'],
   /** The word rendered in red inside the final line. */
@@ -65,12 +89,15 @@ export const hero = {
   /** Kinetic word layer behind the composition. */
   kinetic: ['Train', 'Build', 'Perform'],
   image: {
-    alt: 'An ALPHAFIT member setting up under a loaded barbell in the squat rack.',
+    photo: 'hero-deadlift-setup',
+    focus: '62% 38%',
+    source: 'generated',
+    alt: 'An athlete stands over a loaded barbell between the racks, preparing to deadlift.',
     plate: 'athlete-rack',
     brief:
-      'Hero. Athlete mid-setup under a loaded bar. Dark exposure, deep shadow, ' +
-      'single red rim light from camera right, visible chalk and haze. No eye ' +
-      'contact, no smiling. Shot wide enough to leave the left third empty for type.',
+      'Hero. Athlete mid-setup over a loaded bar. Dark exposure, deep shadow, ' +
+      'red rim light, chalk and haze. No eye contact, no smiling. Subject in the ' +
+      'right half of the frame so the left can carry the type.',
   } satisfies ImageSlot,
 } as const;
 
@@ -83,15 +110,18 @@ export const manifesto = {
   pillars: [
     { index: '01', title: 'Discipline', note: 'Turn up on the days you would rather not.' },
     { index: '02', title: 'Strength', note: 'Heavier than last month. Every month.' },
-    { index: '03', title: 'Consistency', note: 'The programme only works if you run it.' },
+    { index: '03', title: 'Consistency', note: 'The program only works if you run it.' },
     { index: '04', title: 'Progress', note: 'Measured, logged, and earned.' },
   ],
   image: {
-    alt: 'Loaded bumper plates racked against a concrete wall at ALPHAFIT.',
+    photo: 'chalk-hands',
+    focus: '58% 30%',
+    source: 'generated',
+    alt: '',
     plate: 'plates-stack',
     brief:
-      'Manifesto backdrop. Stacked plates or a loaded bar against raw concrete. ' +
-      'Near-black, high contrast, heavy grain. Sits at very low opacity behind type.',
+      'Manifesto backdrop. Chalked hands over the chalk bowl, a loaded plate ' +
+      'in frame. Sits at low opacity behind the type — texture, not subject.',
   } satisfies ImageSlot,
 } as const;
 
@@ -100,7 +130,7 @@ export const trainingSection = {
   lines: ['Train', 'With', 'Purpose.'],
   accentLine: 'Purpose.',
   support: 'Structured training. Real progression. A stronger version of you.',
-  cta: { label: 'View programmes', href: '#coaching' },
+  cta: { label: 'View programs', href: '#coaching' },
 } as const;
 
 export const trainingPrograms = [
@@ -111,7 +141,10 @@ export const trainingPrograms = [
     detail: 'Squat, press, pull. Loaded, logged and reviewed every block.',
     href: '#coaching',
     image: {
-      alt: 'A member driving out of the bottom of a heavy back squat.',
+      photo: 'strength-squat',
+      focus: '42% 46%',
+      source: 'generated',
+      alt: 'An athlete at the bottom of a heavy back squat inside the rack.',
       plate: 'athlete-rack',
       brief:
         'Strength card. Back squat or deadlift at a genuinely heavy load. Tight ' +
@@ -125,7 +158,10 @@ export const trainingPrograms = [
     detail: 'Controlled tempo, managed volume, and enough recovery to grow.',
     href: '#coaching',
     image: {
-      alt: 'A member mid-set on a dumbbell press under low gym lighting.',
+      photo: 'hypertrophy-press',
+      focus: '58% 40%',
+      source: 'generated',
+      alt: 'An athlete pressing a pair of heavy dumbbells on an incline bench.',
       plate: 'torso',
       brief:
         'Hypertrophy card. Mid-set, muscle under tension, low key lighting with a ' +
@@ -139,7 +175,10 @@ export const trainingPrograms = [
     detail: 'A coach on the floor with you, correcting the rep that matters.',
     href: '#coaching',
     image: {
-      alt: 'An ALPHAFIT coach cueing a member through a lift on the platform.',
+      photo: 'coach-squat',
+      focus: '38% 60%',
+      source: 'generated',
+      alt: 'A coach crouches beside an athlete, cueing his squat position.',
       plate: 'coaching',
       brief:
         'Coaching card. Coach and athlete in frame, coach mid-cue, athlete under ' +
@@ -155,23 +194,25 @@ export const facility = {
   support: 'Everything you need. Nothing you don’t.',
   cta: { label: 'Take a tour', href: '#join' },
   image: {
-    alt: 'The main training floor at ALPHAFIT: racks, platforms and loaded bars.',
+    photo: 'room-wide',
+    source: 'generated',
+    alt: 'The training floor: dumbbell racks, power racks, a lifting platform with a loaded bar.',
     plate: 'room-wide',
     brief:
       'Facility hero. Wide shot of the real training floor, lights low, racks ' +
       'receding into shadow. Must be the actual room — this section is the ' +
-      'environment sell. Landscape 16:9 or wider.',
+      'environment sell. Landscape 16:9.',
   } satisfies ImageSlot,
   /**
-   * Hotspots are positioned as percentages of the image box so they survive
-   * any crop. Re-point them after swapping in the real photograph.
+   * Hotspots are percentages of the photograph (16:9), not of the frame, and
+   * they move with the image. Re-point them whenever the photograph changes.
    */
   hotspots: [
-    { index: '01', title: 'Racks', note: 'Power racks for heavy lifts, built for strength.', x: 30, y: 34 },
-    { index: '02', title: 'Plates', note: 'Calibrated and bumper plates, loaded and ready.', x: 14, y: 58 },
-    { index: '03', title: 'Bars', note: 'Power and Olympic bars with honest knurling.', x: 52, y: 62 },
-    { index: '04', title: 'Platform', note: 'A dedicated platform for pulls and Olympic work.', x: 34, y: 82 },
-    { index: '05', title: 'Cables', note: 'Full cable and accessory station for the details.', x: 76, y: 54 },
+    { index: '01', title: 'Racks', note: 'Power racks for heavy lifts, built for strength.', x: 84, y: 27 },
+    { index: '02', title: 'Plates', note: 'Calibrated bumper plates, loaded and ready.', x: 94, y: 45 },
+    { index: '03', title: 'Bars', note: 'Power and Olympic bars with honest knurling.', x: 70, y: 72 },
+    { index: '04', title: 'Platform', note: 'A dedicated platform for pulls and Olympic work.', x: 58, y: 85 },
+    { index: '05', title: 'Cables', note: 'Full cable and accessory station for the details.', x: 30, y: 40 },
   ],
 } as const;
 
@@ -180,7 +221,10 @@ export const facilityStrip = [
     title: 'Iron',
     note: 'The foundation',
     image: {
-      alt: 'Close detail of a stacked iron plate at ALPHAFIT.',
+      photo: 'plates-floor',
+      focus: '28% 58%',
+      source: 'generated',
+      alt: 'A loaded barbell resting on the floor, 20 kg ALPHAFIT plates in focus.',
       plate: 'iron-detail',
       brief: 'Macro. Worn iron plate edge, lettering catching a single light.',
     } satisfies ImageSlot,
@@ -189,7 +233,10 @@ export const facilityStrip = [
     title: 'Racks',
     note: 'Lift heavier',
     image: {
-      alt: 'Uprights of a power rack disappearing into shadow.',
+      photo: 'room-racks',
+      focus: '30% 45%',
+      source: 'generated',
+      alt: 'A row of power racks under low red light.',
       plate: 'athlete-rack',
       brief: 'Rack uprights, strong verticals, deep falloff into black.',
     } satisfies ImageSlot,
@@ -198,7 +245,10 @@ export const facilityStrip = [
     title: 'Bars',
     note: 'Built to last',
     image: {
-      alt: 'Knurling detail on a loaded power bar.',
+      photo: 'grip-bar',
+      focus: '64% 55%',
+      source: 'generated',
+      alt: 'A chalked hand gripping the knurling of a loaded bar.',
       plate: 'bar-knurl',
       brief: 'Macro on knurling with chalk in the grooves. Shallow depth of field.',
     } satisfies ImageSlot,
@@ -207,7 +257,10 @@ export const facilityStrip = [
     title: 'Chalk',
     note: 'Better grip',
     image: {
-      alt: 'Chalk dust hanging in the air above the platform.',
+      photo: 'chalk-hands',
+      focus: '66% 32%',
+      source: 'generated',
+      alt: 'Chalk dust rising from an athlete’s hands above the chalk bowl.',
       plate: 'chalk-haze',
       brief: 'Chalk clap backlit against black. Atmosphere shot, no faces.',
     } satisfies ImageSlot,
@@ -216,7 +269,10 @@ export const facilityStrip = [
     title: 'Sweat',
     note: 'Real work',
     image: {
-      alt: 'A member resting between sets after a heavy effort.',
+      photo: 'athlete-negative-space',
+      focus: '34% 55%',
+      source: 'generated',
+      alt: 'An athlete standing over the bar between sets, chalk hanging in the air.',
       plate: 'torso',
       brief: 'Between sets. Effort visible. Documentary, unposed, dark.',
     } satisfies ImageSlot,
@@ -227,26 +283,28 @@ export const weightExperience = {
   lines: ['Your next', 'Rep', 'Is waiting.'],
   accentLine: 'Rep',
   /** Scrubbed through as the section is pinned. Units stay metric. */
-  loads: ['45', '60', '80', '100'],
+  loads: ['40', '60', '80', '100'],
   unit: 'kg',
-  closing: 'The work starts now.',
+  closing: ['The work', 'Starts now.'],
 } as const;
 
 export const coaching = {
   label: 'Coaching',
   lines: ['Don’t just', 'Work out.', 'Train.'],
   accentLine: 'Train.',
-  support:
-    'Personalised programming. Better technique. Structured progression. Accountability.',
+  support: 'Personalised programming. Better technique. Structured progression. Accountability.',
   cta: { label: 'Book a consultation', href: '#join' },
   principles: [
-    { index: '01', title: 'Programme', note: 'Written for your training age, not a template.' },
+    { index: '01', title: 'Program', note: 'Written for your training age, not a template.' },
     { index: '02', title: 'Coaching', note: 'A coach on the floor, every session.' },
     { index: '03', title: 'Technique', note: 'Positions corrected before load goes up.' },
     { index: '04', title: 'Accountability', note: 'Sessions logged. Progress reviewed.' },
   ],
   image: {
-    alt: 'An ALPHAFIT coach spotting a member through a heavy press.',
+    photo: 'coach-squat',
+    focus: '50% 50%',
+    source: 'generated',
+    alt: 'An ALPHAFIT coach crouches beside an athlete under a loaded bar, cueing his squat.',
     plate: 'coaching',
     brief:
       'Coaching hero. Coach plus athlete, or athlete under heavy load. Red rim ' +
@@ -254,70 +312,46 @@ export const coaching = {
   } satisfies ImageSlot,
 } as const;
 
+/** A before/after slot with no photograph yet. Renders as a marked, empty frame. */
+const memberPhoto = (phase: 'before' | 'after'): ImageSlot => ({
+  alt: `Placeholder for a member’s ${phase} photograph.`,
+  plate: 'torso',
+  brief:
+    phase === 'before'
+      ? 'Before image. Consistent lighting, angle and framing with the after image.'
+      : 'After image. Must match the before image exactly for lighting and crop.',
+});
+
+/**
+ * PLACEHOLDER — replace every entry with a real, consented member story.
+ * Do not publish invented quotes, names or transformation imagery.
+ */
+const memberStory = () => ({
+  placeholder: true,
+  name: 'Member name',
+  meta: 'Program / duration',
+  quote: 'Member story placeholder — replace with a real, consented quote.',
+  milestone: { label: 'Milestone', value: 'XX kg' },
+  before: memberPhoto('before'),
+  after: memberPhoto('after'),
+});
+
 export const results = {
   label: 'Real people',
-  lines: ['Real work.', 'Real progress.'],
+  lines: ['Real people.', 'Real work.', 'Real progress.'],
   accentLine: 'Real progress.',
   support:
     'Progress at ALPHAFIT is measured in sessions completed and load moved, not in promises.',
-  /**
-   * PLACEHOLDER — replace every entry with a real, consented member story.
-   * Do not publish invented quotes, names or transformation imagery.
-   */
-  entries: [
-    {
-      placeholder: true,
-      name: 'Member name',
-      meta: 'Programme / duration',
-      quote: 'Member story placeholder — replace with a real, consented quote.',
-      milestone: { label: 'Milestone', value: 'XX kg' },
-      before: {
-        alt: 'Placeholder for a member’s before photograph.',
-        plate: 'torso',
-        brief: 'Before image. Consistent lighting, angle and framing with the after image.',
-      } satisfies ImageSlot,
-      after: {
-        alt: 'Placeholder for a member’s after photograph.',
-        plate: 'torso',
-        brief: 'After image. Must match the before image exactly for lighting and crop.',
-      } satisfies ImageSlot,
-    },
-    {
-      placeholder: true,
-      name: 'Member name',
-      meta: 'Programme / duration',
-      quote: 'Member story placeholder — replace with a real, consented quote.',
-      milestone: { label: 'Milestone', value: 'XX kg' },
-      before: {
-        alt: 'Placeholder for a member’s before photograph.',
-        plate: 'torso',
-        brief: 'Before image. Consistent lighting, angle and framing with the after image.',
-      } satisfies ImageSlot,
-      after: {
-        alt: 'Placeholder for a member’s after photograph.',
-        plate: 'torso',
-        brief: 'After image. Must match the before image exactly for lighting and crop.',
-      } satisfies ImageSlot,
-    },
-    {
-      placeholder: true,
-      name: 'Member name',
-      meta: 'Programme / duration',
-      quote: 'Member story placeholder — replace with a real, consented quote.',
-      milestone: { label: 'Milestone', value: 'XX kg' },
-      before: {
-        alt: 'Placeholder for a member’s before photograph.',
-        plate: 'torso',
-        brief: 'Before image. Consistent lighting, angle and framing with the after image.',
-      } satisfies ImageSlot,
-      after: {
-        alt: 'Placeholder for a member’s after photograph.',
-        plate: 'torso',
-        brief: 'After image. Must match the before image exactly for lighting and crop.',
-      } satisfies ImageSlot,
-    },
-  ],
-} as const;
+  entries: [memberStory(), memberStory(), memberStory()],
+  backdrop: {
+    photo: 'results-wall',
+    focus: '100% 50%', // crop from the left so the poster clears the frames
+    source: 'generated',
+    alt: '',
+    plate: 'platform',
+    brief: 'Results backdrop. A quiet wall of the gym with room left for member stories.',
+  } satisfies ImageSlot,
+};
 
 /**
  * PLACEHOLDER — every figure below is filler. Replace with verified numbers
@@ -339,30 +373,54 @@ export const finalCta = {
   support: 'Discipline today. A stronger tomorrow.',
   cta: { label: 'Start your journey', href: '#join' },
   image: {
-    alt: 'A chalked barbell resting on the platform at the end of a session.',
+    photo: 'athlete-negative-space',
+    focus: '28% 50%',
+    source: 'generated',
+    alt: '',
     plate: 'platform',
     brief:
-      'Closing image. A single loaded bar on the platform, chalk dust, almost ' +
-      'entirely black. Sits far behind the type at low opacity.',
+      'Closing image. Athlete and loaded bar at the edge of frame with wide ' +
+      'negative space for the type. Sits far behind the headline at low opacity.',
   } satisfies ImageSlot,
 } as const;
 
 /**
  * PLACEHOLDER — contact details are unverified. Replace with the real
- * address, handle and number before launch, or remove the entry.
+ * address, handle, number and hours before launch, or remove the entry.
+ * Set `href` once a value is real (maps link, instagram URL, wa.me link).
  */
-export const contact = {
-  location: { label: 'Location', value: 'City, State', href: undefined, placeholder: true },
-  instagram: { label: 'Instagram', value: '@alphafit', href: undefined, placeholder: true },
-  whatsapp: { label: 'WhatsApp', value: '+00 00000 00000', href: undefined, placeholder: true },
-} as const;
+export const contact = [
+  { label: 'Location', value: 'City, State', href: undefined, placeholder: true },
+  { label: 'Hours', value: 'Mon–Sat, 00:00–00:00', href: undefined, placeholder: true },
+  { label: 'Instagram', value: '@alphafit', href: undefined, placeholder: true },
+  { label: 'WhatsApp', value: '+00 00000 00000', href: undefined, placeholder: true },
+] as const;
 
 export const footer = {
-  columns: [
-    {
-      title: 'Navigate',
-      links: navigation.map((item) => ({ label: item.label, href: item.href })),
-    },
-  ],
   legal: `© ${new Date().getFullYear()} ALPHAFIT. All rights reserved.`,
+} as const;
+
+/** Scroll-driven type bands that carry the page from one section into the next. */
+export const bands = {
+  intoTraining: {
+    label: 'Train with purpose: strength, hypertrophy, coaching.',
+    words: ['Strength', 'Hypertrophy', 'Coaching', 'Train with purpose'],
+  },
+  intoTheWork: {
+    label: 'No shortcuts. Built under pressure. Train like a king.',
+    words: ['No shortcuts', 'Built under pressure', 'Train like a king'],
+  },
+} as const;
+
+/** A thin image band between the plate section and coaching. */
+export const coachingSlit = {
+  caption: 'Fig. 05 / The platform',
+  image: {
+    photo: 'plates-floor',
+    focus: '40% 60%',
+    source: 'generated',
+    alt: '',
+    plate: 'platform',
+    brief: 'A loaded bar on the platform, plates in the foreground. Wide, dark, cropped thin.',
+  } satisfies ImageSlot,
 } as const;

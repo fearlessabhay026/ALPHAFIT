@@ -1,0 +1,67 @@
+<!doctype html><html><head><style>html,body{margin:0;background:transparent}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const SIZE = Number(new URLSearchParams(location.search).get('size') || 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(SIZE, SIZE);
+renderer.setClearColor(0x000000, 0);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.12;
+
+// Narrow lens: keeps the plate close to orthographic, so the face reads flat and heavy.
+const camera = new THREE.PerspectiveCamera(18, 1, 0.1, 20);
+camera.position.set(0, 0, 1.62);
+camera.lookAt(0, 0, 0);
+
+// Lights live in a rig that we can counter-rotate against the CSS spin.
+const rig = new THREE.Group(); scene.add(rig);
+const key = new THREE.DirectionalLight(0xffffff, 3.2); rig.add(key); rig.add(key.target);
+const rim = new THREE.DirectionalLight(0xff2020, 5.0); rig.add(rim); rig.add(rim.target);
+const fill = new THREE.DirectionalLight(0x9aa0b4, 0.35); fill.position.set(0.2, -0.6, 1); rig.add(fill);
+
+const pivot = new THREE.Group(); scene.add(pivot);
+const bump = await new THREE.TextureLoader().loadAsync('./bump.png');
+bump.flipY = false; bump.colorSpace = THREE.NoColorSpace; bump.anisotropy = 8;
+
+const gltf = await new GLTFLoader().loadAsync('./plate.glb');
+gltf.scene.traverse((o) => {
+  if (!o.isMesh) return;
+  const m = o.material;
+  if (m.name === 'rubber_matte_black') { m.bumpMap = bump; m.bumpScale = 6; m.color.setScalar(0.028); m.roughness = 0.82; }
+  if (m.name === 'rubber_molded_crown') { m.color.setScalar(0.03); }
+  if (m.name === 'alphafit_blood_red') { m.color.setRGB(0.55, 0.0, 0.0); m.roughness = 0.45; }
+  if (m.name === 'hub_steel') { m.envMapIntensity = 2.2; }
+  m.needsUpdate = true;
+});
+pivot.add(gltf.scene);
+
+const rad = THREE.MathUtils.degToRad;
+window.renderFrame = ({ tiltX = 0, tiltY = 0, spin = 0, keyAz = 135, keyEl = 28, keyI = 3.2, rimAz = -30, rimEl = 10, rimI = 5, exposure = 1 }) => {
+  key.intensity = keyI; rim.intensity = rimI;
+  pivot.rotation.set(rad(tiltX), rad(tiltY), rad(spin), 'YXZ');
+  // Azimuth measured in the image plane (0 = right, 90 = top), elevation = how far the light sits off the face.
+  const place = (light, az, el, d = 3) => {
+    const a = rad(az), e = rad(el);
+    light.position.set(Math.cos(a) * Math.cos(e) * d, Math.sin(a) * Math.cos(e) * d, Math.sin(e) * d);
+  };
+  place(key, keyAz, keyEl); place(rim, rimAz, rimEl);
+  rim.position.z = -Math.abs(rim.position.z) * 0.35; // rim sits slightly behind the plate
+  renderer.toneMappingExposure = exposure;
+  renderer.render(scene, camera);
+  return renderer.domElement.toDataURL('image/png');
+};
+window.ready = true;
+</script></body></html>

@@ -11,6 +11,8 @@ import { Stats } from './components/Stats';
 import { FinalCTA } from './components/FinalCTA';
 import { Footer } from './components/Footer';
 import { Grain } from './components/ui/Grain';
+import { ImageSlit, TypeBand } from './components/ui/Transitions';
+import { bands, coachingSlit } from './data/site';
 import { ScrollTrigger } from './lib/motion';
 import { useSmoothScroll } from './lib/useSmoothScroll';
 
@@ -44,9 +46,12 @@ export function App() {
       <main id="main">
         <Hero />
         <Manifesto />
+        <TypeBand {...bands.intoTraining} />
         <Training />
         <Facility />
+        <TypeBand {...bands.intoTheWork} />
         <WeightExperience />
+        <ImageSlit slot={coachingSlit.image} caption={coachingSlit.caption} />
         <PersonalTraining />
         <Results />
         <Stats />

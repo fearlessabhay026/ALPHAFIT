@@ -12,6 +12,7 @@ npm run dev        # http://localhost:5173
 npm run build      # typecheck + production build to dist/
 npm run preview    # serve the production build
 npm run typecheck
+npm run images     # rebuild photography from assets-src/photos
 ```
 
 ---
@@ -46,13 +47,19 @@ src/
     Training.tsx          Sticky statement + three magnetic editorial cards
     TrainingCard.tsx
     Facility.tsx          "The room." — hotspots + horizontal detail strip
-    WeightExperience.tsx  Pinned signature moment: loads travelling past type
+    WeightExperience.tsx  Pinned signature moment: the plate turns, loads climb past
+    PlateSequence.tsx     Canvas frame-scrub for the rendered 20 KG plate
     PersonalTraining.tsx  Coaching argument against a full-bleed frame
     Results.tsx           Before/after with a clip-reveal transition
     Stats.tsx             Giant figures divided by self-drawing rules
     FinalCTA.tsx          The close
     Footer.tsx
-    ui/                   Button, ImagePlate, Reveal primitives, Grain, Wordmark
+    ui/                   Button, ImagePlate, Reveal primitives, Transitions, Grain, Wordmark
+  data/images.generated.ts  Built photo manifest (npm run images)
+  data/plate.generated.ts   Built plate frame list (scripts/plate)
+assets-src/photos/        Photography masters
+scripts/build-images.mjs  Photo pipeline
+scripts/plate/            Offline plate renderer (own package.json)
 ```
 
 Content is separated from presentation: to re-word the site, edit
@@ -60,48 +67,59 @@ Content is separated from presentation: to re-word the site, edit
 
 ---
 
-## Photography — READ THIS FIRST
+## Photography
 
-**There is no ALPHAFIT photography in this repository.** The art direction
-rules out generic stock and AI-looking gym imagery, so rather than ship
-something off-brand, every image slot renders a generated stand-in: a layered,
-art-directed dark plate (`src/components/ui/ImagePlate.tsx`) that holds the
-composition and carries the right palette.
+Every image slot is fed from `assets-src/photos/` — JPEG masters, one per
+photograph. `npm run images` turns them into responsive, content-hashed WebP
+renditions in `public/images/` (480 / 800 / 1200 / full width, ~60–125 KB at
+full size), a ~200 byte blurred placeholder each, and the typed manifest
+`src/data/images.generated.ts`. It also writes the hero's
+`<link rel="preload">` into `index.html`, so the largest image starts
+downloading before React runs.
 
-### Replacing a plate with a real photograph
+**The current photographs are AI-generated stand-ins, not ALPHAFIT's gym or
+members** (each slot is marked `source: 'generated'` in `src/data/site.ts`).
+They set the art direction; they should be replaced with real photography
+before launch — **the facility first**, because visitors will read "The Room"
+as the actual room.
 
-Set `src` on the slot in `src/data/site.ts` and update `alt` to describe the
-actual photograph. Nothing else changes.
+### Replacing a photograph
 
-```ts
-image: {
-  src: '/photos/hero-rack.jpg',
-  alt: 'An ALPHAFIT member setting up under a loaded barbell in the squat rack.',
-  plate: 'athlete-rack',   // kept as the fallback
-  brief: '...',            // the art-direction note for this slot
-}
-```
+1. Drop the new master into `assets-src/photos/` (reuse the old filename to
+   replace it, or add a new one).
+2. `npm run images`
+3. In `src/data/site.ts`, point the slot's `photo` at the key, update its
+   `alt` to describe the real photograph, set `focus` (the CSS
+   object-position to keep in frame when cropped), and set `source: 'alphafit'`.
+4. For the facility photograph, re-point `facility.hotspots` — they are
+   percentages of the photo, not of the frame.
+
+Each slot carries a `brief` describing what to shoot. A slot with no `photo`
+falls back to a generated gradient plate (with a red "image slot" badge in
+dev), so nothing breaks while a photograph is missing.
+
+### The 20 KG plate
+
+The plate in "Your next rep" is rendered from the ALPHAFIT bumper-plate model
+into 40 frames (~1.1 MB, desktop only, fetched as the section approaches) plus
+a 32 KB still for phones and reduced motion. The renderer is a separate
+sub-package so three.js and Playwright never enter the site's install — see
+`scripts/plate/README.md`.
 
 ### Slot manifest
 
-Every slot carries a `brief` field in `src/data/site.ts` describing what to
-shoot. In development, each unfilled slot also renders a small red badge on the
-image itself so nothing ships unnoticed.
-
-| Where | Slot | Aspect | Subject |
-| --- | --- | --- | --- |
-| Hero | `hero.image` | Full bleed | Athlete mid-setup under a loaded bar; leave the left third empty for type |
-| Manifesto | `manifesto.image` | Full bleed | Plates against raw concrete; sits at low opacity behind type |
-| Training ×3 | `trainingPrograms[].image` | 3:4 | Heavy squat / mid-set under tension / coach cueing a lift |
-| Facility | `facility.image` | 16:8 | **The real training floor** — this section is the environment sell |
-| Facility strip ×5 | `facilityStrip[].image` | 4:5 | Iron, racks, bars, chalk, sweat — details and atmosphere |
-| Coaching | `coaching.image` | 3:4 | Coach + athlete, or athlete under heavy load; no trainer smiling at camera |
-| Results ×6 | `results.entries[].before/after` | 3:4 | Consented member photographs; before and after must match for lighting and crop |
-
-After swapping in the real facility photograph, re-point the hotspot
-coordinates in `facility.hotspots` — they are percentages of the image box.
-
----
+| Where | Photo | Subject |
+| --- | --- | --- |
+| Hero | `hero-deadlift-setup` | Athlete over a loaded bar, right half of frame |
+| Manifesto | `chalk-hands` | Chalked hands, used as low-opacity texture |
+| Training | `strength-squat`, `hypertrophy-press`, `coach-squat` | Squat / dumbbell press / coach + athlete |
+| Facility | `room-wide` | **The real training floor** — hotspots are mapped onto it |
+| Facility strip | `plates-floor`, `room-racks`, `grip-bar`, `chalk-hands`, `athlete-negative-space` | Iron, racks, bars, chalk, sweat |
+| Image slit | `plates-floor` | Loaded bar on the platform, cropped thin |
+| Coaching | `coach-squat` | Coach cueing an athlete under load |
+| Results wall | `results-wall` | A quiet wall; the before/after frames hang on it |
+| Final CTA | `athlete-negative-space` | Athlete + bar with negative space, low opacity |
+| Results before/after | — | **Empty by design** until real, consented member photos exist |
 
 ## Placeholder content
 
@@ -113,8 +131,9 @@ visible marker in the UI.
 | --- | --- | --- |
 | Member count, years, session count | `stats.items` | "Placeholder figure" under each |
 | Member stories, names, milestones | `results.entries` | Red "Placeholder — awaiting real member story" chip |
-| Location, Instagram, WhatsApp | `contact` | Red "placeholder" tag in the footer |
-| Before/after imagery | `results.entries[].before/after` | Generated plate + dev badge |
+| Location, Instagram, WhatsApp | `contact` | Red "Placeholder" tag in the final CTA |
+| Before/after imagery | `results.entries[].before/after` | Marked empty frames: "Member photo — awaiting consent" |
+| Hours | `contact` | Red "Placeholder" tag in the final CTA |
 
 `LocalBusiness` / `Gym` structured data is **intentionally not shipped**. There
 is a `TODO` in `index.html` marking where it goes — add it only once the real
@@ -196,9 +215,11 @@ font revalidate on every visit**. `vercel.json` overrides that:
 
 | Path | Cache | Why |
 | --- | --- | --- |
-| `/assets/*` | 1 year, immutable | Vite content-hashes these, so it is always safe |
-| `/fonts/*` | 1 year, immutable | Fixed subsets. **If you swap a font file, change its filename too**, or clients will hold the old one |
-| `favicon / og / texture` | 1 day | Unhashed art, so a replacement goes live quickly |
+| `/assets/*` | 1 year, immutable | Vite content-hashes these |
+| `/images/*` | 1 year, immutable | `npm run images` puts a content hash in every filename |
+| `/plate/*` | 1 year, immutable | The frame folder is named by a hash of the render |
+| `/fonts/*` | 1 year, immutable | Fixed subsets. **If you swap a font file, change its filename too** |
+| `favicon / og.jpg / texture` | 1 day | Unhashed, so a replacement goes live quickly |
 
 `vercel.json` is validated strictly — it rejects unknown keys, so don't add
 comment fields to it.
@@ -208,7 +229,9 @@ comment fields to it.
 1. **Remove the `noindex` tag** in `index.html`. It is there because the page
    still shows placeholder figures and member stories, and those should not be
    indexed as factual.
-2. Replace the placeholders listed above, and fill the image slots.
+2. Replace the AI-generated stand-in photography with real ALPHAFIT photos
+   (facility first), and replace the placeholders listed above.
 3. Add the `LocalBusiness` JSON-LD once the real business details exist.
-4. Attach the real domain in the Vercel project, and rename the production
+4. Attach the real domain in the Vercel project, update the absolute
+   `og:image` / `og:url` in `index.html` to it, and rename the production
    branch to something more permanent than the current working branch.

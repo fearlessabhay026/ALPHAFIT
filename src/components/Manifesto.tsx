@@ -1,6 +1,7 @@
-import { manifesto } from '../data/site';
+import { manifesto, sections } from '../data/site';
 import { gsap, onEnter, reveal, useGsap, usePrefersReducedMotion } from '../lib/motion';
 import { ImagePlate } from './ui/ImagePlate';
+import { SectionMarker } from './ui/Transitions';
 import { MaskLine, SectionLabel } from './ui/Reveal';
 
 /**
@@ -20,7 +21,10 @@ export function Manifesto() {
     reveal(tl, '[data-manifesto-rule]', 'draw-y', { stagger: 0.07, duration: 0.8 }, 0.6);
     reveal(tl, '[data-manifesto-item]', 'fade-up', { stagger: 0.09, duration: 0.8 }, 0.7);
 
-    if (reduced) return;
+    if (reduced) {
+      gsap.set('[data-manifesto-image]', { opacity: 0.55 });
+      return;
+    }
 
     // The red word carries slightly further than the line above it.
     gsap.to('[data-manifesto-accent]', {
@@ -29,12 +33,13 @@ export function Manifesto() {
       scrollTrigger: { trigger: self, start: 'top bottom', end: 'bottom top', scrub: 1 },
     });
 
-    // The backdrop surfaces slowly as the section is read.
+    // The backdrop surfaces slowly as the section is read — never past a
+    // texture's worth of opacity, so the type stays the subject.
     gsap.fromTo(
       '[data-manifesto-image]',
       { opacity: 0, scale: 1.16 },
       {
-        opacity: 1,
+        opacity: 0.55,
         scale: 1,
         ease: 'none',
         scrollTrigger: { trigger: self, start: 'top bottom', end: 'center center', scrub: 1 },
@@ -48,15 +53,28 @@ export function Manifesto() {
       ref={scope as React.Ref<HTMLElement>}
       data-manifesto
       aria-labelledby="manifesto-heading"
-      className="relative overflow-clip bg-void py-28 md:py-40 lg:py-52"
+      className="relative overflow-clip bg-void pt-32 pb-24 md:pt-40 md:pb-28 lg:pt-44 lg:pb-32"
     >
-      <div data-manifesto-image aria-hidden className="absolute inset-0 opacity-0">
-        <ImagePlate slot={manifesto.image} vignette={0.9} />
+      <SectionMarker {...sections.manifesto} />
+      {/* Chalk and grip, held back to a texture on the right of the statement */}
+      <div
+        data-manifesto-image
+        aria-hidden
+        className="manifesto-photo-mask absolute inset-y-0 right-0 w-full opacity-0 lg:w-[64%]"
+      >
+        <ImagePlate
+          slot={manifesto.image}
+          sizes="(min-width: 1024px) 64vw, 100vw"
+          className="grayscale-[45%] contrast-[1.15] brightness-[0.8]"
+        />
       </div>
       <div
         aria-hidden
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(90deg, rgba(3,3,4,0.96) 12%, rgba(3,3,4,0.55) 100%)' }}
+        style={{
+          background:
+            'linear-gradient(90deg, rgba(3,3,4,0.97) 18%, rgba(3,3,4,0.62) 58%, rgba(3,3,4,0.5) 100%), linear-gradient(0deg, rgba(3,3,4,0.95) 0%, transparent 42%)',
+        }}
       />
 
       <div className="gutter relative mx-auto max-w-[120rem]">
@@ -67,7 +85,7 @@ export function Manifesto() {
         <div className="mt-10 grid grid-cols-12 gap-x-6 gap-y-10 md:mt-14">
           <h2
             id="manifesto-heading"
-            className="display-type col-span-12 text-[clamp(3.4rem,21vw,8.5rem)] lg:col-span-7"
+            className="display-type col-span-12 text-[clamp(2.8rem,17vw,8rem)] lg:col-span-7"
           >
             {manifesto.lines.map((line) => (
               <MaskLine key={line} as="span" className="block">

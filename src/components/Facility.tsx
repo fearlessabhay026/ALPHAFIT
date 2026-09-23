@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { facility, facilityStrip } from '../data/site';
+import { facility, facilityStrip, sections } from '../data/site';
 import { gsap, onEnter, reveal, useGsap, useIsDesktop, usePrefersReducedMotion } from '../lib/motion';
 import { Button } from './ui/Button';
 import { ImagePlate } from './ui/ImagePlate';
+import { SectionMarker } from './ui/Transitions';
 import { MaskLine, SectionLabel } from './ui/Reveal';
 
 /**
@@ -13,6 +14,7 @@ import { MaskLine, SectionLabel } from './ui/Reveal';
 export function Facility() {
   const [open, setOpen] = useState<string | null>(null);
   const isDesktop = useIsDesktop();
+  const activeSpot = facility.hotspots.find((spot) => spot.index === open) ?? null;
   const reduced = usePrefersReducedMotion();
 
   const scope = useGsap(({ self }) => {
@@ -27,12 +29,13 @@ export function Facility() {
     if (reduced) return;
 
     // The room drifts under its own frame as the section passes.
+    // Gentle, so hotspots near the edges stay inside the frame.
     gsap.fromTo(
       '[data-facility-image]',
-      { yPercent: -6, scale: 1.1 },
+      { yPercent: -2.5, scale: 1.06 },
       {
-        yPercent: 6,
-        scale: 1.1,
+        yPercent: 2.5,
+        scale: 1.06,
         ease: 'none',
         scrollTrigger: { trigger: '[data-facility-frame]', start: 'top bottom', end: 'bottom top', scrub: 1 },
       },
@@ -45,8 +48,9 @@ export function Facility() {
       ref={scope as React.Ref<HTMLElement>}
       data-facility
       aria-labelledby="facility-heading"
-      className="relative overflow-clip bg-ink py-24 md:py-32 lg:py-40"
+      className="relative overflow-clip bg-ink pt-28 pb-20 md:pt-32 lg:pt-36 lg:pb-24"
     >
+      <SectionMarker {...sections.facility} />
       <div className="gutter mx-auto max-w-[120rem]">
         <div className="grid grid-cols-12 items-end gap-x-6 gap-y-8">
           <div className="col-span-12 lg:col-span-5">
@@ -82,31 +86,59 @@ export function Facility() {
           </div>
         </div>
 
-        {/* The room */}
+        {/* The room — the photograph dominates; hotspots ride on it */}
         <div
           data-facility-frame
-          className="relative mt-12 aspect-[4/5] overflow-hidden border border-iron/60 sm:aspect-[16/10] lg:mt-16 lg:aspect-[16/8]"
+          className="relative mt-12 aspect-[4/5] overflow-hidden border border-iron/60 sm:aspect-[16/10] lg:mt-16 lg:aspect-[1672/941]"
         >
-          <div data-facility-image className="absolute inset-0 scale-110 will-change-transform">
-            <ImagePlate slot={facility.image} sizes="100vw" vignette={0.7} />
+          <div data-facility-image className="absolute inset-0 will-change-transform">
+            <RoomZoom active={activeSpot}>
+              <ImagePlate
+                slot={facility.image}
+                sizes="(min-width: 1024px) 94vw, 180vw"
+                className="brightness-[0.95] contrast-[1.05]"
+              />
+              <span
+                aria-hidden
+                className="facility-focus pointer-events-none absolute inset-0"
+                style={
+                  {
+                    '--fx': `${activeSpot?.x ?? 50}%`,
+                    '--fy': `${activeSpot?.y ?? 50}%`,
+                    opacity: activeSpot ? 1 : 0,
+                  } as React.CSSProperties
+                }
+              />
+              {isDesktop &&
+                facility.hotspots.map((spot) => (
+                  <Hotspot
+                    key={spot.index}
+                    spot={spot}
+                    open={open === spot.index}
+                    onSet={(next) =>
+                      setOpen((current) =>
+                        next ? spot.index : current === spot.index ? null : current,
+                      )
+                    }
+                  />
+                ))}
+            </RoomZoom>
           </div>
 
-          {isDesktop && (
-            <div className="absolute inset-0">
-              {facility.hotspots.map((spot) => (
-                <Hotspot
-                  key={spot.index}
-                  spot={spot}
-                  open={open === spot.index}
-                  onSet={(next) =>
-                    setOpen((current) =>
-                      next ? spot.index : current === spot.index ? null : current,
-                    )
-                  }
-                />
-              ))}
-            </div>
-          )}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(to top, rgba(3,3,4,0.7) 0%, transparent 28%), linear-gradient(to bottom, rgba(3,3,4,0.45) 0%, transparent 18%)',
+            }}
+          />
+          <p className="label-type pointer-events-none absolute top-5 left-5 text-bone/60 md:top-6 md:left-6">
+            Fig. 04 / The training floor
+          </p>
+          <p className="label-type pointer-events-none absolute right-5 bottom-5 hidden text-bone/45 md:right-6 md:bottom-6 lg:block">
+            Hover the floor
+          </p>
         </div>
 
         {/* Below 1024px the hotspots become an honest list rather than a diagram */}
@@ -131,8 +163,28 @@ export function Facility() {
 type Spot = (typeof facility.hotspots)[number];
 
 /**
- * A hotspot: a marker, a connecting line, and a panel. Rendered as a button so
- * it can be tabbed to and opened from the keyboard, not just hovered.
+ * Zooms the room 3.5% toward the active hotspot. Expressed as translate + scale
+ * about the centre (rather than moving transform-origin), so gliding from one
+ * hotspot to the next animates instead of jumping.
+ */
+function RoomZoom({ active, children }: { active: Spot | null; children: React.ReactNode }) {
+  const zoom = active ? 1.035 : 1;
+  const tx = active ? (1 - zoom) * (active.x - 50) : 0;
+  const ty = active ? (1 - zoom) * (active.y - 50) : 0;
+  return (
+    <div
+      className="absolute inset-0 transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+      style={{ transform: `translate(${tx}%, ${ty}%) scale(${zoom})` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * A hotspot: a dot exactly on its point, a label beside it, and a panel that
+ * opens vertically on a drawn connector — so the panel can never collide with
+ * the label. Rendered as a button so it works from the keyboard, not only on hover.
  */
 function Hotspot({
   spot,
@@ -143,15 +195,13 @@ function Hotspot({
   open: boolean;
   onSet: (open: boolean) => void;
 }) {
-  // Panels on the right half of the image open leftwards so they stay in frame.
-  const flip = spot.x > 58;
+  const labelLeft = spot.x > 78; // near the right edge the label sits on the left
+  const panelAbove = spot.y > 60;
+  const panelRight = spot.x > 55; // right of centre: panel hangs leftward from the dot
+  const panelId = `hotspot-${spot.index}`;
 
   return (
-    <div
-      data-facility-spot
-      className="absolute"
-      style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-    >
+    <div data-facility-spot className="absolute h-0 w-0" style={{ left: `${spot.x}%`, top: `${spot.y}%` }}>
       <button
         type="button"
         onMouseEnter={() => onSet(true)}
@@ -160,42 +210,46 @@ function Hotspot({
         onBlur={() => onSet(false)}
         onClick={() => onSet(!open)}
         aria-expanded={open}
-        className="group relative flex -translate-x-1/2 -translate-y-1/2 items-center gap-2.5"
+        aria-controls={panelId}
+        className="absolute top-0 left-0 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
       >
         <span
           aria-hidden
-          className={`relative block h-2.5 w-2.5 shrink-0 rounded-full border transition-colors duration-300 ${
-            open ? 'border-red bg-red' : 'border-bone/70 bg-transparent'
+          className={`relative block h-2.5 w-2.5 rounded-full border transition-colors duration-300 ${
+            open ? 'border-red bg-red' : 'border-bone/80 bg-void/40'
           }`}
         >
           <span
             className={`absolute -inset-2 rounded-full border transition-all duration-500 ${
-              open ? 'scale-100 border-red/50 opacity-100' : 'scale-75 border-bone/25 opacity-60'
+              open ? 'scale-100 border-red/60 opacity-100' : 'scale-75 border-bone/30 opacity-70'
             }`}
           />
         </span>
         <span
-          className={`label-type whitespace-nowrap transition-colors duration-300 ${
-            open ? 'text-bone' : 'text-bone/60'
-          }`}
+          className={`label-type absolute top-1/2 -translate-y-1/2 whitespace-nowrap drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)] transition-colors duration-300 ${
+            labelLeft ? 'right-full mr-0.5' : 'left-full ml-0.5'
+          } ${open ? 'text-bone' : 'text-bone/70'}`}
         >
           {spot.index} / {spot.title}
         </span>
       </button>
 
-      {/* Connector: draws out toward the panel when the spot is live */}
+      {/* Connector: draws out of the dot toward the panel */}
       <span
         aria-hidden
-        className={`absolute top-1/2 block h-px origin-left bg-red transition-transform duration-500 ease-out ${
-          open ? 'scale-x-100' : 'scale-x-0'
-        } ${flip ? 'right-full mr-1 origin-right' : 'left-full ml-1'}`}
-        style={{ width: '2.5rem' }}
+        className={`absolute left-0 block h-9 w-px bg-red transition-transform duration-500 ease-out ${
+          panelAbove ? 'bottom-2.5 origin-bottom' : 'top-2.5 origin-top'
+        } ${open ? 'scale-y-100' : 'scale-y-0'}`}
       />
 
       <div
-        className={`pointer-events-none absolute top-1/2 w-56 -translate-y-1/2 border border-iron bg-void/95 p-4 backdrop-blur-sm transition-all duration-500 ease-out ${
-          open ? 'translate-x-0 opacity-100' : 'opacity-0'
-        } ${flip ? 'right-full mr-12' : 'left-full ml-12'}`}
+        id={panelId}
+        role="note"
+        className={`pointer-events-none absolute w-60 border border-iron bg-void/90 p-4 backdrop-blur-sm transition-[opacity,translate] duration-500 ease-out ${
+          panelAbove ? 'bottom-12' : 'top-12'
+        } ${panelRight ? 'right-0 -mr-px border-r-red' : 'left-0 -ml-px border-l-red'} ${
+          open ? 'translate-y-0 opacity-100' : `${panelAbove ? 'translate-y-2' : '-translate-y-2'} opacity-0`
+        }`}
       >
         <h3 className="display-type text-[1.05rem]">{spot.title}</h3>
         <p className="body-type mt-2 text-[0.78rem] text-ash">{spot.note}</p>
@@ -216,9 +270,9 @@ function FacilityStrip() {
     if (reduced || !isDesktop) return;
     gsap.fromTo(
       '[data-strip-track]',
-      { xPercent: 0 },
+      { xPercent: 2 },
       {
-        xPercent: -12,
+        xPercent: -8,
         ease: 'none',
         scrollTrigger: { trigger: self, start: 'top bottom', end: 'bottom top', scrub: 1.2 },
       },
@@ -230,7 +284,7 @@ function FacilityStrip() {
       <div className="no-scrollbar -mx-5 overflow-x-auto px-5 md:-mx-10 md:px-10 lg:mx-0 lg:overflow-visible lg:px-0">
         <ul
           data-strip-track
-          className="flex w-max gap-3 lg:w-[112%] lg:gap-4"
+          className="flex w-max gap-3 lg:w-[108%] lg:gap-4"
         >
           {facilityStrip.map((item) => (
             <li

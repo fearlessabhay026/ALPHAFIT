@@ -1,19 +1,20 @@
 import type { CSSProperties } from 'react';
 import type { ImageSlot, PlateKind } from '../../data/site';
+import { photos } from '../../data/images.generated';
 
 /**
  * ImagePlate — the single image primitive for the whole site.
  *
- * If `slot.src` is set it renders a real photograph. If it is not — which is
- * the case until ALPHAFIT photography exists — it renders a generated
- * art-directed stand-in built from layered gradients, so the composition still
- * reads as deliberate rather than as a broken image or a grey box.
+ * If the slot names a `photo`, it renders that photograph responsively: a
+ * srcset of hashed WebP renditions, the slot's focal point as object-position,
+ * and a ~200 byte blurred placeholder painted underneath so the frame is never
+ * an empty black box while the file arrives.
  *
- * Deliberately NOT stock photography: the art direction rules out generic gym
- * imagery, so an empty slot stays honestly empty and stays on-brand.
+ * With no photo it renders a generated art-directed stand-in built from
+ * layered gradients, so an unfilled slot still reads as deliberate.
  *
- * To use real imagery, set `src` (and a truthful `alt`) on the slot in
- * `src/data/site.ts`. Nothing else has to change.
+ * Slots with an empty `alt` are decorative backdrops and are hidden from
+ * assistive technology.
  */
 
 type Props = {
@@ -128,30 +129,45 @@ export function ImagePlate({
   className = '',
   priority = false,
   style,
-  sizes,
+  sizes = '100vw',
   vignette = 0.72,
 }: Props) {
   const shared = `h-full w-full object-cover ${className}`;
+  const decorative = slot.alt === '';
 
-  if (slot.src) {
+  if (slot.photo) {
+    const photo = photos[slot.photo];
+    const focus = slot.focus ?? '50% 50%';
     return (
       <img
-        src={slot.src}
-        alt={slot.alt}
+        src={photo.src}
+        srcSet={photo.srcSet}
         sizes={sizes}
+        width={photo.width}
+        height={photo.height}
+        alt={slot.alt}
+        aria-hidden={decorative || undefined}
         loading={priority ? 'eager' : 'lazy'}
         decoding={priority ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : 'auto'}
-        className={shared}
-        style={style}
+        draggable={false}
+        className={`select-none ${shared}`}
+        style={{
+          objectPosition: focus,
+          backgroundImage: `url(${photo.lqip})`,
+          backgroundSize: 'cover',
+          backgroundPosition: focus,
+          ...style,
+        }}
       />
     );
   }
 
   return (
     <div
-      role="img"
-      aria-label={slot.alt}
+      role={decorative ? undefined : 'img'}
+      aria-label={decorative ? undefined : slot.alt}
+      aria-hidden={decorative || undefined}
       data-image-slot={slot.plate}
       className={`relative isolate ${shared}`}
       style={{ backgroundImage: RECIPES[slot.plate], backgroundSize: 'cover', ...style }}

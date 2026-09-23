@@ -8,13 +8,25 @@
       ]
     },
     {
+      "source": "/images/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/plate/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
       "source": "/fonts/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
-      "source": "/(favicon.svg|og.svg|texture.svg)",
+      "source": "/(favicon.svg|og.jpg|texture.svg)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400" }
       ]
