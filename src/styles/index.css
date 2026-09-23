@@ -62,7 +62,7 @@
   /* Type */
   --color-bone: #ede9e3;
   --color-ash: #8a8a92;
-  --color-smoke: #55555d;
+  --color-smoke: #7e7e87; /* was #55555d (2.7:1); now >= 4.5:1 on ink and charcoal */
 
   /* Accent */
   --color-red: #e11414;
