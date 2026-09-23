@@ -105,7 +105,7 @@ export function Hero() {
             data-hero-ambience
             src={photo.thumb}
             alt=""
-            className="h-full w-full scale-110 object-cover opacity-0 blur-2xl saturate-150"
+            className="h-full w-full scale-110 object-cover blur-2xl saturate-150 js:opacity-0"
             style={{ objectPosition: hero.image.focus }}
           />
           <div className="absolute inset-0 bg-void/70" />
@@ -141,7 +141,7 @@ export function Hero() {
         <div data-pointer="athlete" className="absolute -inset-[3%]">
           <div
             data-hero-photo
-            className="hero-athlete-mask absolute inset-0 opacity-0 will-change-transform"
+            className="hero-athlete-mask absolute inset-0 will-change-transform js:opacity-0"
           >
             <ImagePlate
               slot={hero.image}

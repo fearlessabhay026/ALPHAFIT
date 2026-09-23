@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* `js:` applies a utility only once the inline script in index.html has set
+   html.js — for start states GSAP animates from, so the prerendered page is
+   fully visible without JavaScript. */
+@custom-variant js (&:where(.js *));
+
 /* ==========================================================================
    FONTS — self-hosted so the page owns its LCP and makes no third-party
    request. Archivo is the variable width+weight axis face used for display,

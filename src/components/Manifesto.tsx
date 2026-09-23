@@ -60,7 +60,7 @@ export function Manifesto() {
       <div
         data-manifesto-image
         aria-hidden
-        className="manifesto-photo-mask absolute inset-y-0 right-0 w-full opacity-0 lg:w-[64%]"
+        className="manifesto-photo-mask absolute inset-y-0 right-0 w-full lg:w-[64%] js:opacity-0"
       >
         <ImagePlate
           slot={manifesto.image}
