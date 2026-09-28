@@ -7,10 +7,10 @@
  * PLACEHOLDER POLICY
  * ------------------
  * Anything that would be a factual claim about the business (member counts,
- * years operating, testimonials, address, phone) is a placeholder marked with
- * `placeholder: true` and written with obvious filler (XX+, "Member name").
- * Never replace these with invented numbers — replace them with real data or
- * leave them out. Components render `placeholder` entries with a visible
+ * years operating, testimonials, address, phone) must be real. While a value
+ * is unknown it is marked `placeholder: true` and written with obvious filler
+ * (XX+, "Member name"). Never replace filler with invented numbers — replace
+ * it with real data or leave the entry out. Components render `placeholder` entries with a visible
  * marker so an unfinished field is obvious during review.
  *
  * PHOTOGRAPHY
@@ -54,6 +54,16 @@ export const brand = {
   signoff: 'Strength builds a better you.',
 } as const;
 
+/** ALPHAFIT's WhatsApp, digits only with the country code (wa.me format). */
+const WHATSAPP = '919850408764';
+
+/** A wa.me link that opens a chat with ALPHAFIT, pre-filled with `message`. */
+export const whatsappLink = (message: string) =>
+  `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
+
+/** Where every "join" action lands: a WhatsApp chat asking for a free trial. */
+export const joinHref = whatsappLink("Hi AlphaFit, I'd like to book a free trial session");
+
 export const navigation = [
   { label: 'Train', href: '#train' },
   { label: 'Coaching', href: '#coaching' },
@@ -68,9 +78,8 @@ export const sections = {
   facility: { index: '04', name: 'Facility' },
   weight: { index: '05', name: 'The work' },
   coaching: { index: '06', name: 'Coaching' },
-  results: { index: '07', name: 'Results' },
-  stats: { index: '08', name: 'Numbers' },
-  join: { index: '09', name: 'Join' },
+  stats: { index: '07', name: 'Numbers' },
+  join: { index: '08', name: 'Join' },
 } as const;
 
 export const hero = {
@@ -78,7 +87,7 @@ export const hero = {
   /** The word rendered in red inside the final line. */
   accentWord: 'King',
   support: 'Built for those who take training seriously.',
-  primaryCta: { label: 'Start training', href: '#join' },
+  primaryCta: { label: 'Start training', href: joinHref },
   secondaryCta: { label: 'Explore ALPHAFIT', href: '#about' },
   /** Tiny editorial metadata set around the composition. */
   hud: [
@@ -293,7 +302,10 @@ export const coaching = {
   lines: ['Don’t just', 'Work out.', 'Train.'],
   accentLine: 'Train.',
   support: 'Personalised programming. Better technique. Structured progression. Accountability.',
-  cta: { label: 'Book a consultation', href: '#join' },
+  cta: {
+    label: 'Book a consultation',
+    href: whatsappLink("Hi AlphaFit, I'd like to book a coaching consultation"),
+  },
   principles: [
     { index: '01', title: 'Program', note: 'Written for your training age, not a template.' },
     { index: '02', title: 'Coaching', note: 'A coach on the floor, every session.' },
@@ -312,57 +324,16 @@ export const coaching = {
   } satisfies ImageSlot,
 } as const;
 
-/** A before/after slot with no photograph yet. Renders as a marked, empty frame. */
-const memberPhoto = (phase: 'before' | 'after'): ImageSlot => ({
-  alt: `Placeholder for a member’s ${phase} photograph.`,
-  plate: 'torso',
-  brief:
-    phase === 'before'
-      ? 'Before image. Consistent lighting, angle and framing with the after image.'
-      : 'After image. Must match the before image exactly for lighting and crop.',
-});
-
 /**
- * PLACEHOLDER — replace every entry with a real, consented member story.
- * Do not publish invented quotes, names or transformation imagery.
- */
-const memberStory = () => ({
-  placeholder: true,
-  name: 'Member name',
-  meta: 'Program / duration',
-  quote: 'Member story placeholder — replace with a real, consented quote.',
-  milestone: { label: 'Milestone', value: 'XX kg' },
-  before: memberPhoto('before'),
-  after: memberPhoto('after'),
-});
-
-export const results = {
-  label: 'Real people',
-  lines: ['Real people.', 'Real work.', 'Real progress.'],
-  accentLine: 'Real progress.',
-  support:
-    'Progress at ALPHAFIT is measured in sessions completed and load moved, not in promises.',
-  entries: [memberStory(), memberStory(), memberStory()],
-  backdrop: {
-    photo: 'results-wall',
-    focus: '100% 50%', // crop from the left so the poster clears the frames
-    source: 'generated',
-    alt: '',
-    plate: 'platform',
-    brief: 'Results backdrop. A quiet wall of the gym with room left for member stories.',
-  } satisfies ImageSlot,
-};
-
-/**
- * PLACEHOLDER — every figure below is filler. Replace with verified numbers
- * or delete the entry. Do not invent business statistics.
+ * Verified figures supplied by ALPHAFIT. Business claims: only ever replace
+ * them with real numbers, never estimates.
  */
 export const stats = {
   label: 'By the numbers',
   items: [
-    { value: 'XX+', title: 'Members', note: 'A stronger community', placeholder: true },
-    { value: 'XX+', title: 'Years', note: 'Years of commitment', placeholder: true },
-    { value: 'XXXX+', title: 'Sessions', note: 'Countless stories', placeholder: true },
+    { value: '120+', title: 'Members', note: 'A stronger community', placeholder: false },
+    { value: '1+', title: 'Years', note: 'Years of commitment', placeholder: false },
+    { value: '730+', title: 'Sessions', note: 'Countless stories', placeholder: false },
     { value: '01', title: 'Mission', note: 'A healthier tomorrow', placeholder: false },
   ],
 } as const;
@@ -371,7 +342,7 @@ export const finalCta = {
   lines: ['Ready', 'To train?'],
   accentLine: 'To train?',
   support: 'Discipline today. A stronger tomorrow.',
-  cta: { label: 'Start your journey', href: '#join' },
+  cta: { label: 'Start your journey', href: joinHref },
   image: {
     photo: 'athlete-negative-space',
     focus: '28% 50%',
@@ -384,20 +355,26 @@ export const finalCta = {
   } satisfies ImageSlot,
 } as const;
 
-/**
- * PLACEHOLDER — contact details are unverified. Replace with the real
- * address, handle, number and hours before launch, or remove the entry.
- * Set `href` once a value is real (maps link, instagram URL, wa.me link).
- */
 export const contact = [
-  { label: 'Location', value: 'City, State', href: undefined, placeholder: true },
-  { label: 'Hours', value: 'Mon–Sat, 00:00–00:00', href: undefined, placeholder: true },
-  { label: 'Instagram', value: '@alphafit', href: undefined, placeholder: true },
-  { label: 'WhatsApp', value: '+00 00000 00000', href: undefined, placeholder: true },
+  {
+    label: 'Location',
+    value: 'Sapnawat, Hapur, Uttar Pradesh 245101',
+    href: 'https://maps.app.goo.gl/mA6HcsDvRZeKjPgUA',
+    placeholder: false,
+  },
+  { label: 'Hours', value: 'Mon–Sat', href: undefined, placeholder: false },
+  {
+    label: 'Instagram',
+    value: '@thealphafitx',
+    href: 'https://www.instagram.com/thealphafitx/',
+    placeholder: false,
+  },
+  { label: 'WhatsApp', value: '+91 98504 08764', href: joinHref, placeholder: false },
 ] as const;
 
 export const footer = {
   legal: `© ${new Date().getFullYear()} ALPHAFIT. All rights reserved.`,
+  credit: { label: 'Website by Advicty', href: 'https://advicty.vercel.app' },
 } as const;
 
 /** Scroll-driven type bands that carry the page from one section into the next. */

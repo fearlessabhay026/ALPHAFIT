@@ -84,7 +84,7 @@ export function FinalCTA() {
           <Button href={finalCta.cta.href}>{finalCta.cta.label}</Button>
         </div>
 
-        {/* Contact — placeholders are marked until the real details exist */}
+        {/* Contact */}
         <div className="mt-24 md:mt-32">
           <span data-cta-rule aria-hidden className="block h-px w-full origin-left bg-iron" />
           <dl className="grid grid-cols-2 gap-x-6 gap-y-8 pt-8 md:grid-cols-4">
@@ -95,6 +95,8 @@ export function FinalCTA() {
                   {item.href ? (
                     <a
                       href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="body-type text-[0.95rem] text-bone transition-colors duration-300 hover:text-red"
                     >
                       {item.value}

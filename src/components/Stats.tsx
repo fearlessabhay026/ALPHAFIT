@@ -6,8 +6,8 @@ import { SectionLabel } from './ui/Reveal';
 /**
  * Numbers — four giant figures divided by rules that draw themselves down.
  *
- * Every value is a placeholder. These are business claims, so they stay filler
- * until real figures exist; placeholder entries carry a visible marker.
+ * These are business claims: only real figures belong here. Any entry still
+ * marked as a placeholder carries a visible marker.
  */
 export function Stats() {
   const scope = useGsap(({ self }) => {

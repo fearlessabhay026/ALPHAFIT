@@ -6,10 +6,10 @@ import { Training } from './components/Training';
 import { Facility } from './components/Facility';
 import { WeightExperience } from './components/WeightExperience';
 import { PersonalTraining } from './components/PersonalTraining';
-import { Results } from './components/Results';
 import { Stats } from './components/Stats';
 import { FinalCTA } from './components/FinalCTA';
 import { Footer } from './components/Footer';
+import { WhatsAppButton } from './components/WhatsAppButton';
 import { Grain } from './components/ui/Grain';
 import { ImageSlit, TypeBand } from './components/ui/Transitions';
 import { bands, coachingSlit } from './data/site';
@@ -19,7 +19,7 @@ import { useSmoothScroll } from './lib/useSmoothScroll';
 /**
  * The page is one continuous scroll, ordered as a journey:
  * arrival -> belief -> training -> environment -> intensity -> coaching ->
- * proof -> scale -> action.
+ * scale -> action.
  */
 export function App() {
   useSmoothScroll();
@@ -53,11 +53,11 @@ export function App() {
         <WeightExperience />
         <ImageSlit slot={coachingSlit.image} caption={coachingSlit.caption} />
         <PersonalTraining />
-        <Results />
         <Stats />
         <FinalCTA />
       </main>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

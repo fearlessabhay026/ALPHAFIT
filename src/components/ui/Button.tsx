@@ -26,11 +26,13 @@ export function Button({ href, children, variant = 'primary', className = '', tr
   const magnetic = useMagnetic<HTMLAnchorElement>(variant === 'ghost' ? 0.14 : 0.24);
 
   const isHash = href.startsWith('#');
+  const isExternal = /^https?:/.test(href);
 
   return (
     <a
       {...magnetic}
       href={href}
+      {...(isExternal && { target: '_blank', rel: 'noopener noreferrer' })}
       onClick={
         isHash
           ? (event) => {

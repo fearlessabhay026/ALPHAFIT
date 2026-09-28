@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { navigation } from '../data/site';
+import { joinHref, navigation } from '../data/site';
 import { gsap, ease, usePrefersReducedMotion } from '../lib/motion';
 import { scrollToId, setScrollLocked } from '../lib/useSmoothScroll';
 import { Wordmark } from './ui/Wordmark';
@@ -96,11 +96,9 @@ export function Navigation() {
 
           <div className="flex items-center gap-4">
             <a
-              href="#join"
-              onClick={(event) => {
-                event.preventDefault();
-                go('#join');
-              }}
+              href={joinHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="label-type hidden border border-red px-5 py-3 text-bone transition-colors duration-300 hover:bg-red lg:inline-block"
             >
               Join now
@@ -256,11 +254,9 @@ function MobileMenu({
           </ul>
 
           <a
-            href="#join"
-            onClick={(event) => {
-              event.preventDefault();
-              onNavigate('#join');
-            }}
+            href={joinHref}
+            target="_blank"
+            rel="noopener noreferrer"
             className="label-type mt-10 flex items-center justify-between border border-red px-6 py-5 text-bone"
           >
             Join now

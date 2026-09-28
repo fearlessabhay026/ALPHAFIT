@@ -36,7 +36,7 @@ No animation library is layered on top of GSAP, and no UI kit is used.
 
 ```
 src/
-  data/site.ts            All copy, navigation, image slots and placeholders
+  data/site.ts            All copy, navigation, image slots and contact details
   lib/
     motion.ts             GSAP setup, reveal primitives, magnetic + media hooks
     useSmoothScroll.ts    Lenis lifecycle, anchor navigation, scroll locking
@@ -50,9 +50,9 @@ src/
     WeightExperience.tsx  Pinned signature moment: the plate turns, loads climb past
     PlateSequence.tsx     Canvas frame-scrub for the rendered 20 KG plate
     PersonalTraining.tsx  Coaching argument against a full-bleed frame
-    Results.tsx           Before/after with a clip-reveal transition
     Stats.tsx             Giant figures divided by self-drawing rules
-    FinalCTA.tsx          The close
+    FinalCTA.tsx          The close, with address, hours, Instagram and WhatsApp
+    WhatsAppButton.tsx    Sticky WhatsApp shortcut on phones, shown after the hero
     Footer.tsx
     ui/                   Button, ImagePlate, Reveal primitives, Transitions, Grain, Wordmark
   data/images.generated.ts  Built photo manifest (npm run images)
@@ -117,28 +117,27 @@ sub-package so three.js and Playwright never enter the site's install — see
 | Facility strip | `plates-floor`, `room-racks`, `grip-bar`, `chalk-hands`, `athlete-negative-space` | Iron, racks, bars, chalk, sweat |
 | Image slit | `plates-floor` | Loaded bar on the platform, cropped thin |
 | Coaching | `coach-squat` | Coach cueing an athlete under load |
-| Results wall | `results-wall` | A quiet wall; the before/after frames hang on it |
 | Final CTA | `athlete-negative-space` | Athlete + bar with negative space, low opacity |
-| Results before/after | — | **Empty by design** until real, consented member photos exist |
 
-## Placeholder content
+## Business details
 
-The following are **deliberately fake** and must be replaced with verified data
-or removed. Nothing here was invented to look plausible; each renders with a
-visible marker in the UI.
+Contact details, stats and the structured data are real, supplied by ALPHAFIT:
 
-| Item | Location | Marker |
-| --- | --- | --- |
-| Member count, years, session count | `stats.items` | "Placeholder figure" under each |
-| Member stories, names, milestones | `results.entries` | Red "Placeholder — awaiting real member story" chip |
-| Location, Instagram, WhatsApp | `contact` | Red "Placeholder" tag in the final CTA |
-| Before/after imagery | `results.entries[].before/after` | Marked empty frames: "Member photo — awaiting consent" |
-| Hours | `contact` | Red "Placeholder" tag in the final CTA |
+| Item | Where |
+| --- | --- |
+| Address, hours, Instagram, WhatsApp | `contact` in `src/data/site.ts` |
+| WhatsApp number and pre-filled messages | `WHATSAPP`, `whatsappLink`, `joinHref` in `src/data/site.ts` |
+| Members, years, sessions | `stats.items` in `src/data/site.ts` |
+| `ExerciseGym` JSON-LD | `index.html` — keep it in step with `contact` |
 
-`LocalBusiness` / `Gym` structured data is **intentionally not shipped**. There
-is a `TODO` in `index.html` marking where it goes — add it only once the real
-legal name, address, geo and opening hours exist, because search engines treat
-structured data as factual claims.
+Every "join" action (nav "Join now", hero "Start training", "Start your
+journey", the sticky phone button) opens WhatsApp with a free-trial message.
+"Book a consultation" opens WhatsApp with a coaching message.
+
+Anything still unknown stays out rather than being filled with a guess. The
+member-stories section was removed until real, consented stories and
+before/after photos exist; bring it back from git history (`Results.tsx`)
+when they do. Opening times are not published yet, only the days.
 
 ---
 
@@ -182,7 +181,6 @@ With `prefers-reduced-motion: reduce`:
   keyboard; below 1024px they become a plain readable list instead of a diagram.
 - The mobile menu is a labelled dialog: focus is moved in, contained, restored
   on close, and `Escape` closes it.
-- The results slider is an `aria-live="polite"` region with labelled controls.
 
 ---
 
@@ -241,14 +239,11 @@ font revalidate on every visit**. `vercel.json` overrides that:
 `vercel.json` is validated strictly — it rejects unknown keys, so don't add
 comment fields to it.
 
-### Before going live
+### Still to do
 
-1. **Remove the `noindex` tag** in `index.html`. It is there because the page
-   still shows placeholder figures and member stories, and those should not be
-   indexed as factual.
-2. Replace the AI-generated stand-in photography with real ALPHAFIT photos
-   (facility first), and replace the placeholders listed above.
-3. Add the `LocalBusiness` JSON-LD once the real business details exist.
-4. Attach the real domain in the Vercel project, update the absolute
+1. Replace the AI-generated stand-in photography with real ALPHAFIT photos
+   (facility first).
+2. Add opening times to `contact` and `openingHours` in the JSON-LD.
+3. Attach the real domain in the Vercel project, update the absolute
    `og:image` / `og:url` in `index.html` to it, and rename the production
    branch to something more permanent than the current working branch.

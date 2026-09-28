@@ -5,7 +5,7 @@ import { Wordmark } from './ui/Wordmark';
 /**
  * Footer — deliberately light. Contact, hours and socials live in the final
  * call to action directly above, so this only closes the page: mark, sign-off,
- * navigation, legal.
+ * navigation, legal, credit.
  */
 export function Footer() {
   return (
@@ -36,7 +36,17 @@ export function Footer() {
           </ul>
         </nav>
 
-        <p className="label-type text-smoke">{footer.legal}</p>
+        <div className="flex flex-col gap-3 md:items-end">
+          <p className="label-type text-smoke">{footer.legal}</p>
+          <a
+            href={footer.credit.href}
+            target="_blank"
+            rel="noopener"
+            className="label-type -my-[17px] inline-block py-[17px] text-smoke transition-colors duration-300 hover:text-bone"
+          >
+            {footer.credit.label}
+          </a>
+        </div>
       </div>
     </footer>
   );

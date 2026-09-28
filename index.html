@@ -25,14 +25,6 @@
     <link rel="preload" as="image" fetchpriority="high" imagesrcset="/images/hero-deadlift-setup-0575af24-480.webp 480w, /images/hero-deadlift-setup-0575af24-800.webp 800w, /images/hero-deadlift-setup-0575af24-1200.webp 1200w, /images/hero-deadlift-setup-0575af24-1672.webp 1672w" imagesizes="(min-width: 1024px) 60vw, 180vw" />
     <!-- hero-preload:end -->
 
-    <!--
-      TODO(launch): REMOVE THIS TAG BEFORE GOING LIVE.
-      The page still carries placeholder business figures, placeholder member
-      stories and placeholder contact details. This keeps search engines from
-      indexing them. Delete it once the real content is in.
-    -->
-    <meta name="robots" content="noindex, nofollow" />
-
     <title>ALPHAFIT — Train Like a King</title>
     <meta
       name="description"
@@ -59,12 +51,33 @@
     />
     <meta name="twitter:image" content="https://alphafit-eight.vercel.app/og.jpg" />
 
-    <!--
-      TODO(content): Add LocalBusiness / Gym JSON-LD structured data here once the
-      real ALPHAFIT business details exist (legal name, street address, geo,
-      opening hours, telephone). Do not publish placeholder values as structured
-      data — search engines treat them as factual claims.
-    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ExerciseGym",
+        "name": "ALPHAFIT",
+        "url": "https://alphafit-eight.vercel.app/",
+        "image": "https://alphafit-eight.vercel.app/og.jpg",
+        "description": "Strength-training gym in Sapnawat, Hapur. Strength, hypertrophy and 1-on-1 coaching.",
+        "telephone": "+919850408764",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Sapnawat",
+          "addressLocality": "Hapur",
+          "addressRegion": "Uttar Pradesh",
+          "postalCode": "245101",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 28.6222536,
+          "longitude": 77.7214152
+        },
+        "hasMap": "https://maps.app.goo.gl/mA6HcsDvRZeKjPgUA",
+        "openingHours": "Mo-Sa",
+        "sameAs": ["https://www.instagram.com/thealphafitx/"]
+      }
+    </script>
 
   </head>
   <body>
@@ -72,6 +85,12 @@
       // Flag JS so pre-animation hidden states only apply when GSAP can reveal them.
       document.documentElement.classList.add('js');
     </script>
+    <noscript>
+      <p style="padding: 2rem; font-family: sans-serif; color: #ede9e3">
+        ALPHAFIT, Sapnawat, Hapur, Uttar Pradesh 245101. WhatsApp
+        <a href="https://wa.me/919850408764" style="color: #ede9e3">+91 98504 08764</a>.
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
